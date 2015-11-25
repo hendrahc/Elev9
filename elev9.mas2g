@@ -12,7 +12,7 @@ environment {
 }
 
 agentfiles {
-	"elevatoragent.goal" [name=file1] .
+	"elev9agent.goal" [name=file1] .
 }
 
 launchpolicy {
