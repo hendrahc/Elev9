@@ -36,6 +36,9 @@ init module {
 		
 		carPosition(0).
 		people(0).
+		
+		agent(manager).
+		
 	}
 	goals{
 		atFloor(1), dir(up).
@@ -84,17 +87,19 @@ event module {
 		if bel(percept(people(N)), people(Nprev), Nprev \== N) then insert(people(N)) + delete(people(Nprev)).
 		
 		
+		forall bel(received(Sender,manager(M)), not(manager(M)))
+			do insert(manager(M)).
+		
+		
 		%%%%% Percept Processing %%%%%
 		
 		% The atFloor(Level) percept is received only when elevator has stopped at a floor Level.
 		%% updating floor position
 		forall bel( percept(atFloor(Level)), not(atFloor(Level)) )
 			do insert( atFloor(Level) ).
-%			+ send( manager, atFloor(Level) ).
 			
 		forall bel( atFloor(Level), not(percept(atFloor(Level))) )
 			do delete( atFloor(Level) ).
-%			+ manager.send(not(atFloor(Level)) ).
 				
 		% The fButton(Level,Dir) percept indicates that the up or down (Dir) button on floor Level has been pressed.
 		%% updating Picking request
@@ -132,13 +137,13 @@ event module {
 		
 		% Adopt new stops that are on this agent's route.
 		%% 
-		forall bel( fButtonOn(Level, Dir), onRoute(Level, Dir) ) do adopt( atFloor(Level), dir(Dir) ).
+		forall bel( fButtonOn(Level, Dir), onRoute(Level, Dir), myUtility(Level, Dir, Util) ) do (manager).send(bid(Level, Dir, Util)).
 				
 		% The eButton(Level) percept is received when the elevator button on floor Level has been pressed.
 		% In that case, the agent will adopt a goal to service that floor. It is ASSUMED that a button for a floor is
 		% pressed that is "on route", i.e. in the direction the elevator is currently travelling.
 		%% insert Delivery request as goal
-		forall bel( percept(eButtonOn(Level)), dir(Dir) ) do adopt( atFloor(Level), dir(Dir) ).
+		forall bel( percept(eButtonOn(Level)), dir(Dir), myUtility(Level, Dir, Util) ) do (manager).send(bid(Level, Dir, Util)).
 
 		% If there are no current goals to pursue, then adopt a goal to service an arbitrary floor for
 		% which a floor button has been pressed that is not already being serviced.

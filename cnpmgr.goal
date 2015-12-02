@@ -1,12 +1,16 @@
 init module {
 	knowledge{
-		elevator(Elev) :- agent(Elev), not(manager(Elev)).
-		%elevList(L) :- findall(Elev, elevator(Elev), L).
-		%Nelevator(N) :- elevList(L), length(L,N).
+		elevator(Elev) :- agent(Elev), not(me(Elev)).
+		elevList(L) :- findall(Elev, elevator(Elev), L).
+		num_elev(N) :- elevList(L), length(L,N).
+		
+		highest_bid(Sender,Level,Dir,Util) :- received_bid(Sender, Level, Dir, Util), received_bid(OtherSender, Level, Dir, OtherUtil), Sender \= OtherSender, Util >= OtherUtil. 
+		
+		
 	}
 	
 	beliefs{
-		manager(manager).
+		
 	}
 	
 	goals{
@@ -20,12 +24,20 @@ init module {
 	
 main module {
 	program {
-
-	}
+		
+	}	
 }
 	
 event module {
 	program {
+		
+		forall bel(received(Sender,bid(Level, Dir, Util)))
+			do insert( received_bid(Sender, Level, Dir, Util) ).
+			
+		forall bel(highest_bid(Sender, Level, Dir, Util), received_bid(S,Level,Dir,U) )
+			do (Sender).send(task(Level,Dir))
+			+ delete( received_bid(S,Level,Dir,U) )
+			+ delete( highest_bid(Sender, Level, Dir, Util) ).
 		
 	}
 }
