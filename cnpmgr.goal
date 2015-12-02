@@ -1,0 +1,31 @@
+init module {
+	knowledge{
+		elevator(Elev) :- agent(Elev), not(manager(Elev)).
+		%elevList(L) :- findall(Elev, elevator(Elev), L).
+		%Nelevator(N) :- elevList(L), length(L,N).
+	}
+	
+	beliefs{
+		manager(manager).
+	}
+	
+	goals{
+
+	}
+	
+	program {
+		
+    }
+}
+	
+main module {
+	program {
+
+	}
+}
+	
+event module {
+	program {
+		
+	}
+}
