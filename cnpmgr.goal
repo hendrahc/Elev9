@@ -4,8 +4,8 @@ init module {
 		elevList(L) :- findall(Elev, elevator(Elev), L).
 		num_elev(N) :- elevList(L), length(L,N).
 		
-		highest_bid(Sender,Level,Dir,Util) :- received_bid(Sender, Level, Dir, Util), received_bid(OtherSender, Level, Dir, OtherUtil), Sender \= OtherSender, Util >= OtherUtil. 
-		
+		highest_bid(Sender,Level,Dir,Util) :- received_bid(Sender, Level, Dir, Util), not(there_is_higher_bid(Other,Level,Dir,OtherUtil) ).
+		there_is_higher_bid(Sender,Level,Dir,Util) :- received_bid(Sender, Level, Dir, Util), received_bid(Other, Level, Dir, OtherUtil), Sender \= Other, OtherUtil > Util.
 		
 	}
 	
@@ -31,13 +31,43 @@ main module {
 event module {
 	program {
 		
-		forall bel(received(Sender,bid(Level, Dir, Util)))
-			do insert( received_bid(Sender, Level, Dir, Util) ).
+		% receive passenger picking request at floor Level, direction Dir 
+		forall bel(received(Sender, fButtonOn(Level,Dir) ), not(fButtonOn(Level,Dir)))
+			do insert(fButtonOn(Level,Dir))
+			+ insert(request(Level, Dir, 0))
+			+ delete(received(Sender,fButtonOn(Level,Dir))).
+		
+		%forall bel(received(Sender, fButtonOn(Level,Dir) ), fButtonOn(Level,Dir) )
+		%	do delete(received(Sender,fButtonOn(Level,Dir))).
+		
+		forall bel(agent(A), not(me(A)), fButtonOn(Level,Dir), not(sent(A, auction(Level, Dir))))
+			do (A).send( auction(Level, Dir)).
+
+		% collecting bids for a request
+		forall bel(received(Sender,bid(Level, Dir, Util)), request(Level, Dir, LastN), num_elev(N), CurrentN is LastN+1, LastN < N)
+			do insert( received_bid(Sender, Level, Dir, Util) )
+			+ delete(request(Level, Dir, LastN))
+			+ insert(request(Level, Dir, CurrentN))
+			+ delete(sent(Sender, auction(Level, Dir))).
 			
-		forall bel(highest_bid(Sender, Level, Dir, Util), received_bid(S,Level,Dir,U) )
-			do (Sender).send(task(Level,Dir))
-			+ delete( received_bid(S,Level,Dir,U) )
-			+ delete( highest_bid(Sender, Level, Dir, Util) ).
+		
+		if bel(request(Level, Dir, N), num_elev(N), not(task_assign(Level, Dir, _)))
+		then {
+			if bel(highest_bid(Sender, Level, Dir, Util), not(task_assign(Level, Dir, _)))
+			then (Sender).send( task(Level,Dir) ) 
+				+ insert( task_assign(Level, Dir, Sender) ).
+			
+			% Clean-up after the task is assigned to elevator
+			forall bel(fButtonOn(Level, Dir)) do delete(fButtonOn(Level, Dir)).
+			forall bel(request(Level, Dir, X)) do delete(request(Level, Dir, X)).
+			forall bel(received_bid(Sender, Level, Dir, Util)) do delete(received_bid(Sender, Level, Dir, Util)).
+		}
+		
+		forall bel(received(Sender, task_complete(Level, Dir)), task_assign(Level, Dir, Sender))
+			do delete(task_assign(Level, Dir, Sender))
+			+ delete(sent(Sender, task(Level,Dir))). 
+																								    
+		
 		
 	}
 }

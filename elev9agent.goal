@@ -22,7 +22,12 @@ init module {
 			distance(Level, Dist), dir(CurrentDir), CurrentDir == Dir,
 			Util is (0.8*(1-Dist/TotalFloor)+0.2*(C/TotalCap)).
 			
-		myUtility(Level, Dir, Util) :- availableCap(C), C > 0, Util = 0. % last choice
+		myUtility(Level, Dir, Util)
+			:- availableCap(C), capacity(TotalCap), floorCount(TotalFloor),
+			distance(Level, Dist),
+			Util is (0.4*(1-Dist/TotalFloor)+0.2*(C/TotalCap)).
+			
+		myUtility(Level, Dir, 0.1) :- not(myUtility(Level, Dir, Util)). % last choice
 		
 		
 	}
@@ -30,18 +35,17 @@ init module {
 		% The direction that will be shown to the people at the next stop.
 		% This remains the intended direction of movement until there are no more
 		% planned stops in that direction.
-		dir(down).
+		atFloor(1).
+		dir(up).
 		% Initially, it is unknown whether doors are open or closed.
-		doorState(unknown).
+		doorState(closed).
 		
 		carPosition(0).
 		people(0).
 		
-		agent(manager).
-		
 	}
 	goals{
-		atFloor(1), dir(up).
+		%atFloor(1), dir(up).
 	}
 	actionspec{
 		% The action goto(Level, Dir) moves the elevator car to floor Level. It can
@@ -103,31 +107,19 @@ event module {
 				
 		% The fButton(Level,Dir) percept indicates that the up or down (Dir) button on floor Level has been pressed.
 		%% updating Picking request
-		forall bel( percept(fButtonOn(Level,Dir)), not(fButtonOn(Level,Dir)) )
-			do insert( fButtonOn(Level,Dir) ).
-%			+ manager.send(fButtonOn(Level,Dir) ).
+		forall bel( percept(fButtonOn(Level,Dir)), not(sent(manager,fButtonOn(Level,Dir))) )
+			do (manager).send( fButtonOn(Level,Dir) ).
+		
+		
+		
 			
-		forall bel( fButtonOn(Level,Dir), not(percept(fButtonOn(Level,Dir))) )
-			do delete( fButtonOn(Level,Dir) ).
-%			+ manager.send(not(fButtonOn(Level,Dir)) ).
+%		forall bel( fButtonOn(Level,Dir), not(percept(fButtonOn(Level,Dir))) )
+%			do delete( fButtonOn(Level,Dir) )
+%			+ (manager).send(not(fButtonOn(Level,Dir)) ).
 		
 		% The doorState percept is received only if the door state has changed.
 		% So we do not need to check whether the New value is different from the Old value to avoid unnecessary updates.
 		forall bel( percept(doorState(New)), doorState(Old) ) do insert( not(doorState(Old)), doorState(New) ).
-
-
-		%% bidding request & response
-%		forall bel( received(Sender, bidRequest(Level, Dir)), not(manager.sent(bid(Level, Dir, _))))
-%			do {
-%				if bel(myUtility(Level, Dir, Util))
-%					then manager.send(bid(Level, Dir, Util)).
-%			}
-
-
-		%% receive task from the manager, and adopt these as goals
-		forall bel(received(Sender,task(Level, Dir)))
-			do delete(received(Sender,task(Level, Dir)))
-			+ adopt(atFloor(Level), dir(Dir)).
 
 
 		%%%%% Goal Management %%%%%
@@ -137,17 +129,42 @@ event module {
 		
 		% Adopt new stops that are on this agent's route.
 		%% 
-		forall bel( fButtonOn(Level, Dir), onRoute(Level, Dir), myUtility(Level, Dir, Util) ) do (manager).send(bid(Level, Dir, Util)).
+		
+		%% bidding request & response
+		forall bel( received(manager, auction(Level, Dir)), not(sent(manager, bid(Level, Dir, _)))) do {
+			if bel(myUtility(Level, Dir, Util))
+				then (manager).send(bid(Level, Dir, Util))
+				+ delete(sent(manager,fButtonOn(Level,Dir))).
+		}
+
+		%% receive task from the manager, and adopt these as goals
+		forall bel(received(Sender,task(Level, Dir)))
+			do delete(received(Sender,task(Level, Dir)))
+			+ adopt(atFloor(Level), dir(Dir))
+			+ insert( task(Level,Dir) ).
+		
+		
+		
+		% forall bel( fButtonOn(Level, Dir), onRoute(Level, Dir), myUtility(Level, Dir, Util) ) do (manager).send(bid(Level, Dir, Util)).
 				
 		% The eButton(Level) percept is received when the elevator button on floor Level has been pressed.
 		% In that case, the agent will adopt a goal to service that floor. It is ASSUMED that a button for a floor is
 		% pressed that is "on route", i.e. in the direction the elevator is currently travelling.
 		%% insert Delivery request as goal
-		forall bel( percept(eButtonOn(Level)), dir(Dir), myUtility(Level, Dir, Util) ) do (manager).send(bid(Level, Dir, Util)).
+		forall bel( percept(eButtonOn(Level)), dir(Dir) ) do adopt( atFloor(Level), dir(Dir) ).
+
+		%completed task
+		forall bel(task(Level,Dir)), not(goal(atFloor(Level), dir(Dir)))
+			do delete(task(Level,Dir))
+			+ (manager).send( task_complete(Level, Dir)).
 
 		% If there are no current goals to pursue, then adopt a goal to service an arbitrary floor for
 		% which a floor button has been pressed that is not already being serviced.
-		if bel( atFloor(Any) ), not(goal( atFloor(AnyL) )), bel( fButtonOn(L,D), doorState(closed) )
-			then adopt( atFloor(L), dir(D) ).
+		%if bel( atFloor(Any) ), not(goal( atFloor(AnyL) )), bel( fButtonOn(L,D), doorState(closed) )
+		%	then adopt( atFloor(L), dir(D) ).
+		
+		if bel( atFloor(Any) ), not(goal( atFloor(AnyL) ))
+			then adopt( atFloor(1), dir(up) ).
+		
 	}
 }
