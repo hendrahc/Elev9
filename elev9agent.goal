@@ -10,8 +10,8 @@ init module {
 		availableCap(CapLeft) :- capacity(C), people(N), CapLeft is C - N.
 		
 		% distance between the current elevator position and target position
+		%distance(Level, Dist) :- carPosition(CurrentPos), Dist is abs(Level-CurrentPos).
 		distance(Level, Dist) :- carPosition(CurrentPos), Dist is abs(Level-CurrentPos).
-		
 		
 		% utility calculation
 		myUtility(Level, Dir, Util) :- availableCap(C), C == 0, Util = 0. %elevator is full, Util=0
@@ -91,8 +91,8 @@ event module {
 		if bel(percept(people(N)), people(Nprev), Nprev \== N) then insert(people(N)) + delete(people(Nprev)).
 		
 		
-		forall bel(received(Sender,manager(M)), not(manager(M)))
-			do insert(manager(M)).
+		%forall bel(received(Sender,manager(M)), not(manager(M)))
+		%	do insert(manager(M)).
 		
 		
 		%%%%% Percept Processing %%%%%
@@ -107,7 +107,7 @@ event module {
 				
 		% The fButton(Level,Dir) percept indicates that the up or down (Dir) button on floor Level has been pressed.
 		%% updating Picking request
-		forall bel( percept(fButtonOn(Level,Dir)), not(sent(manager,fButtonOn(Level,Dir))) )
+		forall bel( me(elevator), percept(fButtonOn(Level,Dir)), not(sent(manager,fButtonOn(Level,Dir))) )
 			do (manager).send( fButtonOn(Level,Dir) ).
 		
 		

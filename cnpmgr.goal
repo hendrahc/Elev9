@@ -4,7 +4,7 @@ init module {
 		elevList(L) :- findall(Elev, elevator(Elev), L).
 		num_elev(N) :- elevList(L), length(L,N).
 		
-		highest_bid(Sender,Level,Dir,Util) :- received_bid(Sender, Level, Dir, Util), not(there_is_higher_bid(Other,Level,Dir,OtherUtil) ).
+		highest_bid(Sender,Level,Dir,Util) :- received_bid(Sender, Level, Dir, Util), not(there_is_higher_bid(Sender,Level,Dir,Util) ).
 		there_is_higher_bid(Sender,Level,Dir,Util) :- received_bid(Sender, Level, Dir, Util), received_bid(Other, Level, Dir, OtherUtil), Sender \= Other, OtherUtil > Util.
 		
 	}
