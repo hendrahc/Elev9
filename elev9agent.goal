@@ -6,45 +6,46 @@ init module {
 		%% 
 		onRoute(Level, Dir) :- atFloor(Here), dir(Dir), Diff is Level-Here, (Diff<0 -> Dir=down; Dir=up).
 		
-		
+		% count the left capacity of this elevator (total capacity - number of people inside)
 		availableCap(CapLeft) :- capacity(C), people(N), CapLeft is C - N.
 		
 		% distance between the current elevator position and target position
-		%distance(Level, Dist) :- carPosition(CurrentPos), Dist is abs(Level-CurrentPos).
 		distance(Level, Dist) :- carPosition(CurrentPos), Dist is abs(Level-CurrentPos).
 		
-		% utility calculation
-		myUtility(Level, Dir, Util) :- availableCap(C), C == 0, Util = 0. %elevator is full, Util=0
-		myUtility(Level, Dir, Util) :- availableCap(C), capacity(TotalCap), atFloor(Level), dir(Dir), Util is 0.8+0.2*(C/TotalCap). % same floor, same direction
+		% utility calculation (current approach: 80% based on distance, and 20% based on available capacity)
+		%elevator is full, Util=0
+		myUtility(Level, Dir, Util) :- availableCap(C), C == 0, Util = 0.
 		
+		% going to the same floor, same direction, Util = 0.8+0.2*(C/TotalCap)
+		myUtility(Level, Dir, Util) :- availableCap(C), capacity(TotalCap), atFloor(Level), dir(Dir), Util is 0.8+0.2*(C/TotalCap).
+		
+		% going to the same direction, Util = (0.8*(1-Dist/TotalFloor)+0.2*(C/TotalCap)))
 		myUtility(Level, Dir, Util)
 			:- availableCap(C), capacity(TotalCap), floorCount(TotalFloor),
 			distance(Level, Dist), dir(CurrentDir), CurrentDir == Dir,
 			Util is (0.8*(1-Dist/TotalFloor)+0.2*(C/TotalCap)).
 			
+		% going to reversed direction, Util = (0.4*(1-Dist/TotalFloor)+0.2*(C/TotalCap)))
 		myUtility(Level, Dir, Util)
 			:- availableCap(C), capacity(TotalCap), floorCount(TotalFloor),
 			distance(Level, Dist),
 			Util is (0.4*(1-Dist/TotalFloor)+0.2*(C/TotalCap)).
 			
-		myUtility(Level, Dir, 0.1) :- not(myUtility(Level, Dir, Util)). % last choice
+		% if no rules achieved, default Util = 0.01 
+		myUtility(Level, Dir, 0.01) :- not(myUtility(Level, Dir, Util)).
 		
 		
 	}
 	beliefs{
-		% The direction that will be shown to the people at the next stop.
-		% This remains the intended direction of movement until there are no more
-		% planned stops in that direction.
+		%initial condition, elevator is empty, at floor 1, with direction up, and door is closed
+		people(0).
 		atFloor(1).
 		dir(up).
-		% Initially, it is unknown whether doors are open or closed.
 		doorState(closed).
-		
 		carPosition(0).
-		people(0).
-		
 	}
 	goals{
+		%initially no specific goal until fButtonOn is percepted
 		%atFloor(1), dir(up).
 	}
 	actionspec{
@@ -77,23 +78,16 @@ event module {
 		
 		%%%%% Get Environment Information %%%%%
 		
-		%% get number of floor information
+		%% save number of floor information
 		forall bel(percept(floorCount(N)))
 			do insert(floorCount(N)).
 		
-		% get elevator capacity information 
+		% save elevator capacity information 
 		if bel( percept(capacity(C)))
 			then insert(capacity(C)).
 		
-		
-		
-		% Initiate number of people inside elevator
+		% Update number of people inside elevator
 		if bel(percept(people(N)), people(Nprev), Nprev \== N) then insert(people(N)) + delete(people(Nprev)).
-		
-		
-		%forall bel(received(Sender,manager(M)), not(manager(M)))
-		%	do insert(manager(M)).
-		
 		
 		%%%%% Percept Processing %%%%%
 		
@@ -106,17 +100,10 @@ event module {
 			do delete( atFloor(Level) ).
 				
 		% The fButton(Level,Dir) percept indicates that the up or down (Dir) button on floor Level has been pressed.
-		%% updating Picking request
+		%% whenever there is picking request (fButtonOn), inform the manager (only first elevator sends it to avoid redundance)
 		forall bel( me(elevator), percept(fButtonOn(Level,Dir)), not(sent(manager,fButtonOn(Level,Dir))) )
 			do (manager).send( fButtonOn(Level,Dir) ).
-		
-		
-		
-			
-%		forall bel( fButtonOn(Level,Dir), not(percept(fButtonOn(Level,Dir))) )
-%			do delete( fButtonOn(Level,Dir) )
-%			+ (manager).send(not(fButtonOn(Level,Dir)) ).
-		
+					
 		% The doorState percept is received only if the door state has changed.
 		% So we do not need to check whether the New value is different from the Old value to avoid unnecessary updates.
 		forall bel( percept(doorState(New)), doorState(Old) ) do insert( not(doorState(Old)), doorState(New) ).
@@ -127,23 +114,18 @@ event module {
 		% The elevator agent changes its plans only while it is docked, i.e., at a floor
 		% and not moving.
 		
-		% Adopt new stops that are on this agent's route.
-		%% 
-		
-		%% bidding request & response
+		%% send the bid whenever receiving auction from manager
 		forall bel( received(manager, auction(Level, Dir)), not(sent(manager, bid(Level, Dir, _)))) do {
 			if bel(myUtility(Level, Dir, Util))
 				then (manager).send(bid(Level, Dir, Util))
 				+ delete(sent(manager,fButtonOn(Level,Dir))).
 		}
 
-		%% receive task from the manager, and adopt these as goals
+		%% when receiving task from the manager, adopt this task as goal
 		forall bel(received(Sender,task(Level, Dir)))
 			do delete(received(Sender,task(Level, Dir)))
 			+ adopt(atFloor(Level), dir(Dir))
 			+ insert( task(Level,Dir) ).
-		
-		
 		
 		% forall bel( fButtonOn(Level, Dir), onRoute(Level, Dir), myUtility(Level, Dir, Util) ) do (manager).send(bid(Level, Dir, Util)).
 				
@@ -153,7 +135,7 @@ event module {
 		%% insert Delivery request as goal
 		forall bel( percept(eButtonOn(Level)), dir(Dir) ) do adopt( atFloor(Level), dir(Dir) ).
 
-		%completed task
+		%after a task is completed, inform the manager
 		forall bel(task(Level,Dir)), not(goal(atFloor(Level), dir(Dir)))
 			do delete(task(Level,Dir))
 			+ (manager).send( task_complete(Level, Dir)).
@@ -163,8 +145,8 @@ event module {
 		%if bel( atFloor(Any) ), not(goal( atFloor(AnyL) )), bel( fButtonOn(L,D), doorState(closed) )
 		%	then adopt( atFloor(L), dir(D) ).
 		
-		if bel( atFloor(Any) ), not(goal( atFloor(AnyL) ))
-			then adopt( atFloor(1), dir(up) ).
+%		if bel( atFloor(Any) ), not(goal( atFloor(AnyL) ))
+%			then adopt( atFloor(1), dir(up) ).
 		
 	}
 }
