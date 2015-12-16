@@ -1,0 +1,36 @@
+goal.tools.errorhandling.exceptions.GOALRunFailedException: The run of <MAS file: elev9.mas2g,
+ <environment interface: ElevatorSim-1.3.2.jar>,
+ <environment initialization parameters: {Cars=3, RandomSeed=6353, InsertionTimeHr=0.3, TimeFactor=3, People=20, InsertionTime=50000, Insert2ndReqAt=29000, Controller=EIS Controller, Simulation=Random Rider Insertion, Capacity=8, NPeoplePerFloor=8, Floors=10, StandardDev=1}>,
+ <agent file: C:\Users\thijs_000\Documents\GitHub\Elev9\elev9agent.goal uses KR interface SWIProlog>,
+ <agent file: C:\Users\thijs_000\Documents\GitHub\Elev9\cnpmgr.goal uses KR interface SWIProlog>,
+ <launch rule: launch elevator:elev9agent.goal.>, <launch rule: launch manager:cnpmgr.goal.>,> failed
+	at goal.tools.AbstractRun.run(AbstractRun.java:213)
+	at goal.tools.eclipse.RunTool.main(RunTool.java:31)
+Caused by: goal.tools.errorhandling.exceptions.GOALLaunchFailureException: Cannot launch MAS elev9.mas2g because its child elev9agent.goal has errors.
+	at goal.tools.AbstractRun.buildRuntime(AbstractRun.java:253)
+	at goal.tools.AbstractRun.run(AbstractRun.java:179)
+	... 1 more
+goal.tools.errorhandling.exceptions.GOALRunFailedException: The run of <MAS file: elev9.mas2g,
+ <environment interface: ElevatorSim-1.3.2.jar>,
+ <environment initialization parameters: {Cars=3, RandomSeed=6353, InsertionTimeHr=0.3, TimeFactor=3, People=20, InsertionTime=50000, Insert2ndReqAt=29000, Controller=EIS Controller, Simulation=Random Rider Insertion, Capacity=8, NPeoplePerFloor=8, Floors=10, StandardDev=1}>,
+ <agent file: C:\Users\thijs_000\Documents\GitHub\Elev9\elev9agent.goal uses KR interface SWIProlog>,
+ <agent file: C:\Users\thijs_000\Documents\GitHub\Elev9\cnpmgr.goal uses KR interface SWIProlog>,
+ <launch rule: launch elevator:elev9agent.goal.>, <launch rule: launch manager:cnpmgr.goal.>,> failed
+	at goal.tools.AbstractRun.run(AbstractRun.java:213)
+	at goal.tools.eclipse.RunTool.main(RunTool.java:31)
+Caused by: goal.tools.errorhandling.exceptions.GOALLaunchFailureException: Cannot launch MAS elev9.mas2g because its child elev9agent.goal has errors.
+	at goal.tools.AbstractRun.buildRuntime(AbstractRun.java:253)
+	at goal.tools.AbstractRun.run(AbstractRun.java:179)
+	... 1 more
+goal.tools.errorhandling.exceptions.GOALRunFailedException: The run of <MAS file: elev9.mas2g,
+ <environment interface: ElevatorSim-1.3.2.jar>,
+ <environment initialization parameters: {Cars=3, RandomSeed=6353, InsertionTimeHr=0.3, TimeFactor=3, People=20, InsertionTime=50000, Insert2ndReqAt=29000, Controller=EIS Controller, Simulation=Random Rider Insertion, Capacity=8, NPeoplePerFloor=8, Floors=10, StandardDev=1}>,
+ <agent file: C:\Users\thijs_000\Documents\GitHub\Elev9\elev9agent.goal uses KR interface SWIProlog>,
+ <agent file: C:\Users\thijs_000\Documents\GitHub\Elev9\cnpmgr.goal uses KR interface SWIProlog>,
+ <launch rule: launch elevator:elev9agent.goal.>, <launch rule: launch manager:cnpmgr.goal.>,> failed
+	at goal.tools.AbstractRun.run(AbstractRun.java:213)
+	at goal.tools.eclipse.RunTool.main(RunTool.java:31)
+Caused by: goal.tools.errorhandling.exceptions.GOALLaunchFailureException: Cannot launch MAS elev9.mas2g because its child elev9agent.goal has errors.
+	at goal.tools.AbstractRun.buildRuntime(AbstractRun.java:253)
+	at goal.tools.AbstractRun.run(AbstractRun.java:179)
+	... 1 more
