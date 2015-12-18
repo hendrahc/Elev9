@@ -79,9 +79,14 @@ event module {
 		forall bel( atFloor(Level), not(percept(atFloor(Level))) )
 			do delete( atFloor(Level) ).
 				
+		forall bel( me(elevator), sent(manager,fButtonOn(Level,Dir)),  not(percept(fButtonOn(Level,Dir))) )
+			do delete(sent(manager,fButtonOn(Level,Dir)))
+			+ (manager).send(cancel(Level,Dir))
+			+ delete(sent(manager,cancel(Level,Dir))).
+		
 		% The fButton(Level,Dir) percept indicates that the up or down (Dir) button on floor Level has been pressed.
 		%% whenever there is picking request (fButtonOn), inform the manager (only first elevator sends it to avoid redundance)
-		forall bel( me(elevator), percept(fButtonOn(Level,Dir)), not(sent(manager,fButtonOn(Level,Dir))) )
+		forall bel( me(elevator), percept(fButtonOn(Level,Dir)))
 			do (manager).send( fButtonOn(Level,Dir) ).
 					
 		% The doorState percept is received only if the door state has changed.
@@ -95,7 +100,7 @@ event module {
 		% and not moving.
 		
 		%% calculate & send the bid whenever receiving auction from manager
-		forall bel( received(manager, auction(Level, Dir)), not(sent(manager, bid(Level, Dir, _)))) do {
+		forall bel( received(manager, auction(Level, Dir))) do {
 			% utility calculation (current approach: 80% based on distance, and 20% based on available capacity)
 			% elevator is full, Util=0
 			if bel( not( myUtility(Level, Dir, _) ), availableCap(C), C == 0)
@@ -131,15 +136,28 @@ event module {
 			%send the bid + cleanup
 			if bel(myUtility(Level, Dir, Util))
 				then (manager).send(bid(Level, Dir, Util))
-				+ delete(sent(manager,fButtonOn(Level,Dir)))
-				+ delete (myUtility(Level, Dir, Util)).
+				+ delete (myUtility(Level, Dir, Util))
+				+ delete (received(manager, auction(Level, Dir)))
+				+ delete (sent(manager,bid(Level, Dir, Util))).
 		}
 
 		%% when receiving task from the manager, adopt this task as goal
 		forall bel(received(Sender,task(Level, Dir)))
 			do delete(received(Sender,task(Level, Dir)))
-			+ adopt(atFloor(Level), dir(Dir))
 			+ insert( task(Level,Dir) ).
+		
+		%after a task is completed, inform the manager
+		forall bel(task(Level,Dir), atFloor(Level), dir(Dir) )
+			do delete(task(Level,Dir))
+			+ (manager).send( task_complete(Level, Dir))
+			+ delete (sent(manager, task_complete(Level, Dir))).
+		
+		forall bel(task(Level,Dir))
+			do adopt(atFloor(Level), dir(Dir)).
+		
+%		forall bel(received(Sender,cancel(Level, Dir)))
+%			do delete(received(Sender,cancel(Level, Dir)))
+%			+ drop(atFloor(Level), dir(Dir)).
 		
 		% forall bel( fButtonOn(Level, Dir), onRoute(Level, Dir), myUtility(Level, Dir, Util) ) do (manager).send(bid(Level, Dir, Util)).
 				
@@ -149,11 +167,6 @@ event module {
 		%% insert Delivery request as goal
 		forall bel( percept(eButtonOn(Level)), dir(Dir) ) do adopt( atFloor(Level), dir(Dir) ).
 
-		%after a task is completed, inform the manager
-		forall bel(task(Level,Dir)), not(goal(atFloor(Level), dir(Dir)))
-			do delete(task(Level,Dir))
-			+ (manager).send( task_complete(Level, Dir)).
-
 		% If there are no current goals to pursue, then adopt a goal to service an arbitrary floor for
 		% which a floor button has been pressed that is not already being serviced.
 		%if bel( atFloor(Any) ), not(goal( atFloor(AnyL) )), bel( fButtonOn(L,D), doorState(closed) )
@@ -161,6 +174,11 @@ event module {
 		
 %		if bel( atFloor(Any) ), not(goal( atFloor(AnyL) ))
 %			then adopt( atFloor(1), dir(up) ).
+
+		%forall bel(received(manager,task_complete(Level, Dir)))
+		%	do delete(sent(manager,fButtonOn(Level,Dir)))
+		%	+ delete(received(manager,task_complete(Level, Dir))).
+			
 		
 	}
 }
