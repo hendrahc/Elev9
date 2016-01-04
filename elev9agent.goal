@@ -12,19 +12,25 @@ init module {
 		% distance between the current elevator position and target position
 		distance(Level, Dist) :- carPosition(CurrentPos), Dist is abs(Level-CurrentPos).
 		
+		tasklist(H) :- findall(Task, task(Task, Dir), H).
+		numtask(NT) :- tasklist(H), length(H,NT).
+		
 		% utility calculation (current approach: 80% based on distance, and 20% based on available capacity)
 		%elevator is full, Util=0
 		myUtility(Level, Dir, Util) :- availableCap(C), C == 0, Util = 0.
 		
 		% going to the same floor, same direction, Util = 0.8+0.2*(C/TotalCap)
-		myUtility(Level, Dir, Util) :- availableCap(C), capacity(TotalCap), atFloor(Level), dir(Dir), Util is 0.8+0.2*(C/TotalCap).
+		myUtility(Level, Dir, Util) :- availableCap(C), capacity(TotalCap), atFloor(Level), dir(Dir), Util is 0.9+0.2*(C/TotalCap).
 		
 		% going to the same direction, Util = (0.8*(1-Dist/TotalFloor)+0.2*(C/TotalCap)))
 		myUtility(Level, Dir, Util)
 			:- availableCap(C), capacity(TotalCap), floorCount(TotalFloor),
 			distance(Level, Dist), dir(CurrentDir), CurrentDir == Dir,
 			Util is (0.8*(1-Dist/TotalFloor)+0.2*(C/TotalCap)).
-			
+		
+		myUtility(Level, Dir, Util)
+			:- availableCap(C), C == N, numtask(0), Util = 1.
+		
 		% going to reversed direction, Util = (0.4*(1-Dist/TotalFloor)+0.2*(C/TotalCap)))
 		myUtility(Level, Dir, Util)
 			:- availableCap(C), capacity(TotalCap), floorCount(TotalFloor),

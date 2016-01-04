@@ -2,8 +2,8 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2016-01-04T14:29:08</date>
-  <millis>1451914148706</millis>
+  <date>2016-01-04T15:09:25</date>
+  <millis>1451916565059</millis>
   <sequence>0</sequence>
   <level>INFO</level>
   <class>goal.tools.logging.GOALLogger</class>
@@ -12,8 +12,8 @@
   <message>Parsing mas file C:\Users\thijs_000\Documents\GitHub\Elev9\elev9.mas2g</message>
 </record>
 <record>
-  <date>2016-01-04T14:29:09</date>
-  <millis>1451914149580</millis>
+  <date>2016-01-04T15:09:25</date>
+  <millis>1451916565356</millis>
   <sequence>1</sequence>
   <level>INFO</level>
   <class>goal.tools.logging.GOALLogger</class>
@@ -22,8 +22,8 @@
   <message>Parsing of C:\Users\thijs_000\Documents\GitHub\Elev9\elev9.mas2g completed</message>
 </record>
 <record>
-  <date>2016-01-04T14:29:09</date>
-  <millis>1451914149583</millis>
+  <date>2016-01-04T15:09:25</date>
+  <millis>1451916565356</millis>
   <sequence>2</sequence>
   <level>INFO</level>
   <class>goal.tools.logging.GOALLogger</class>
@@ -32,8 +32,8 @@
   <message>Parsing agent file C:\Users\thijs_000\Documents\GitHub\Elev9\elev9agent.goal</message>
 </record>
 <record>
-  <date>2016-01-04T14:29:11</date>
-  <millis>1451914151249</millis>
+  <date>2016-01-04T15:09:25</date>
+  <millis>1451916565911</millis>
   <sequence>3</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
@@ -42,18 +42,18 @@
   <message>Warning at line 7, position 2 in elev9agent.goal: onRoute/2 is defined but there is no belief query that uses it</message>
 </record>
 <record>
-  <date>2016-01-04T14:29:11</date>
-  <millis>1451914151270</millis>
+  <date>2016-01-04T15:09:25</date>
+  <millis>1451916565913</millis>
   <sequence>4</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>
   <thread>1</thread>
-  <message>Warning at line 56, position 2 in elev9agent.goal: Action parameter(s) Level are not used in pre- nor post-condition</message>
+  <message>Warning at line 62, position 2 in elev9agent.goal: Action parameter(s) Level are not used in pre- nor post-condition</message>
 </record>
 <record>
-  <date>2016-01-04T14:29:11</date>
-  <millis>1451914151271</millis>
+  <date>2016-01-04T15:09:25</date>
+  <millis>1451916565914</millis>
   <sequence>5</sequence>
   <level>INFO</level>
   <class>goal.tools.logging.GOALLogger</class>
@@ -62,8 +62,8 @@
   <message>Parsing of C:\Users\thijs_000\Documents\GitHub\Elev9\elev9agent.goal completed with warnings.</message>
 </record>
 <record>
-  <date>2016-01-04T14:29:11</date>
-  <millis>1451914151271</millis>
+  <date>2016-01-04T15:09:25</date>
+  <millis>1451916565944</millis>
   <sequence>6</sequence>
   <level>INFO</level>
   <class>goal.tools.logging.GOALLogger</class>
@@ -72,8 +72,8 @@
   <message>Parsing agent file C:\Users\thijs_000\Documents\GitHub\Elev9\cnpmgr.goal</message>
 </record>
 <record>
-  <date>2016-01-04T14:29:11</date>
-  <millis>1451914151611</millis>
+  <date>2016-01-04T15:09:26</date>
+  <millis>1451916566146</millis>
   <sequence>7</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
@@ -82,8 +82,8 @@
   <message>Warning at line 24, position 1 in cnpmgr.goal: Program section of init module has no rules</message>
 </record>
 <record>
-  <date>2016-01-04T14:29:11</date>
-  <millis>1451914151613</millis>
+  <date>2016-01-04T15:09:26</date>
+  <millis>1451916566146</millis>
   <sequence>8</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
@@ -92,8 +92,8 @@
   <message>Warning at line 30, position 1 in cnpmgr.goal: Program section of main module has no rules</message>
 </record>
 <record>
-  <date>2016-01-04T14:29:11</date>
-  <millis>1451914151614</millis>
+  <date>2016-01-04T15:09:26</date>
+  <millis>1451916566147</millis>
   <sequence>9</sequence>
   <level>INFO</level>
   <class>goal.tools.logging.GOALLogger</class>
