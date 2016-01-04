@@ -1,16 +1,17 @@
 init module {
 	knowledge{
-		
-		% calculating number of elevators (counting the number of all agents except me, the manager)
 		elevator(Elev) :- agent(Elev), not(me(Elev)).
 		elevList(L) :- findall(Elev, elevator(Elev), L).
 		num_elev(N) :- elevList(L), length(L,N).
 		
+<<<<<<< HEAD
 		handling(Level,Dir) :- request(Level, Dir, _).
 		handling(Level,Dir) :- task_assign(Level, Dir, _).
 		
 		% for each level and dir, choose the sender with the highest utility
 		% highest utility means there is no other agent with higher utility  
+=======
+>>>>>>> parent of 205b3ad... elevators are good!!
 		highest_bid(Sender,Level,Dir,Util) :- received_bid(Sender, Level, Dir, Util), not(there_is_higher_bid(Sender,Level,Dir,Util) ).
 		there_is_higher_bid(Sender,Level,Dir,Util) :- received_bid(Sender, Level, Dir, Util), received_bid(Other, Level, Dir, OtherUtil), Sender \= Other, OtherUtil > Util.
 		
@@ -38,6 +39,7 @@ main module {
 event module {
 	program {
 		
+<<<<<<< HEAD
 		forall bel(received(Sender, cancel(Level,Dir)), request(Level, Dir, N) )
 			do delete(fButtonOn(Level,Dir))
 			+ delete(request(Level, Dir, N)).
@@ -55,15 +57,25 @@ event module {
 		% create request to pick for auction
 		% request(Level,Dir,N) means there are already N collected bids for request to floor Level with direction Dir
 		forall bel(received(Sender, fButtonOn(Level,Dir) ), not(fButtonOn(Level,Dir)), not(handling(Level, Dir)))
+=======
+		% receive passenger picking request at floor Level, direction Dir 
+		forall bel(received(Sender, fButtonOn(Level,Dir) ), not(fButtonOn(Level,Dir)))
+>>>>>>> parent of 205b3ad... elevators are good!!
 			do insert(fButtonOn(Level,Dir))
 			+ insert(request(Level, Dir, 0)).
 		
+<<<<<<< HEAD
 		% whenever there is a picking request, send auction to all elevators
 		forall bel(agent(A), not(me(A)), fButtonOn(Level,Dir), not(task_assign(Level,Dir,_)), not(sent(A, auction(Level, Dir))))
+=======
+		%forall bel(received(Sender, fButtonOn(Level,Dir) ), fButtonOn(Level,Dir) )
+		%	do delete(received(Sender,fButtonOn(Level,Dir))).
+		
+		forall bel(agent(A), not(me(A)), fButtonOn(Level,Dir), not(sent(A, auction(Level, Dir))))
+>>>>>>> parent of 205b3ad... elevators are good!!
 			do (A).send( auction(Level, Dir)).
 
-		% collecting bids from elevators for a request
-		% whenever there is new bid, update the request
+		% collecting bids for a request
 		forall bel(received(Sender,bid(Level, Dir, Util)), request(Level, Dir, LastN), num_elev(N), CurrentN is LastN+1, LastN < N)
 			do insert( received_bid(Sender, Level, Dir, Util) )
 			+ delete(request(Level, Dir, LastN))
@@ -72,16 +84,26 @@ event module {
 			+ delete(received(Sender,bid(Level, Dir, Util))).
 			
 		
+<<<<<<< HEAD
 		% when all bids for request have been collected (number of bids = number of elevators),
 		%  send the task to first elevator with the highest utility
 		forall bel(num_elev(N),request(Level, Dir, N), not(task_assign(Level, Dir, _)))
 		do {
+=======
+		if bel(request(Level, Dir, N), num_elev(N), not(task_assign(Level, Dir, _)))
+		then {
+>>>>>>> parent of 205b3ad... elevators are good!!
 			if bel(highest_bid(Sender, Level, Dir, Util), not(task_assign(Level, Dir, _)))
 			then (Sender).send( task(Level,Dir) ) 
 				+ insert( task_assign(Level, Dir, Sender) )
 				+ delete (sent(Sender,task(Level,Dir))).
 			
+<<<<<<< HEAD
 			% Clean-up after the task is assigned to an elevator
+=======
+			% Clean-up after the task is assigned to elevator
+			forall bel(fButtonOn(Level, Dir)) do delete(fButtonOn(Level, Dir)).
+>>>>>>> parent of 205b3ad... elevators are good!!
 			forall bel(request(Level, Dir, X)) do delete(request(Level, Dir, X)).
 			forall bel(received_bid(S, Level, Dir, Util)) do delete(received_bid(S, Level, Dir, Util)).
 			forall bel(received(S,bid(Level, Dir, Sth))) do delete (received(S,bid(Level, Dir, Sth))).
@@ -89,15 +111,20 @@ event module {
 			 
 		}
 		
-		% whenever an elevator has completed the task, delete the task assignment
 		forall bel(received(Sender, task_complete(Level, Dir)), task_assign(Level, Dir, Sender))
 			do delete(task_assign(Level, Dir, Sender))
+<<<<<<< HEAD
 			+ delete(sent(Sender, task(Level,Dir)))
 			+ delete (received(Sender, task_complete(Level, Dir)))
 			+ delete(fButtonOn(Level, Dir))
 			+ delete(received(Sender,fButtonOn(Level,Dir))).
 %			+ (elevator).send(task_complete(Level,Dir))
 %			+ delete(sent(elevator,task_complete(Level,Dir))). 
+=======
+			+ delete(sent(Sender, task(Level,Dir))). 
+																								    
+		
+>>>>>>> parent of 205b3ad... elevators are good!!
 		
 	}
 }
