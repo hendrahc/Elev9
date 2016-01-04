@@ -116,13 +116,13 @@ event module {
 				
 			% going to the same direction, Util = 
 			if bel( not( myUtility(Level, Dir, _) ), availableCap(C), capacity(TotalCap), floorCount(TotalFloor),
-				distance(Level, Dist), Util is (40*(1-Dist/TotalFloor)+10*(C/TotalCap)) )
+				distance(Level, Dist), dir(Dir), Util is (40*(1-Dist/TotalFloor)+10*(C/TotalCap)) )
 				then insert ( myUtility(Level, Dir, Util) ).
 			% going to reversed direction, 
 			if bel( not( myUtility(Level, Dir, _) ), dir(CurrentDir), Dir \= CurrentDir, people(N), availableCap(C), capacity(TotalCap), floorCount(TotalFloor),
 				distance(Level, Dist)) then{
 					% elevator is empty, Util = 
-					if bel(N==0, Util is ( (50 + 40*(1-Dist/TotalFloor)+10*(C/TotalCap))))
+					if bel(N==0, Util = ( (50 + 40*(1-Dist/TotalFloor)+10*(C/TotalCap))))
 						then insert( myUtility(Level, Dir, Util) ).
 					% elevator is not empty, Util = 
 					%if bel(N>0, Util = (8*(1-Dist/TotalFloor)+2*(C/TotalCap)) )
