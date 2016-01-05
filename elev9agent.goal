@@ -15,28 +15,33 @@ init module {
 		tasklist(H) :- findall(Task, task(Task, Dir), H).
 		numtask(NT) :- tasklist(H), length(H,NT).
 		
-		% utility calculation (current approach: 80% based on distance, and 20% based on available capacity)
+		% utility calculation (current approach: 60% based on distance, and 20% based on available capacity, and 20% based on task occupation)
 		%elevator is full, Util=0
 		myUtility(Level, Dir, Util) :- availableCap(C), C == 0, Util = 0.
 		
-		% going to the same floor, same direction, Util = 0.8+0.2*(C/TotalCap)
-		myUtility(Level, Dir, Util) :- availableCap(C), capacity(TotalCap), atFloor(Level), dir(Dir), Util is 0.9+0.2*(C/TotalCap).
+		% 1. same direction, up
+		myUtility(Level, Dir, Util) :- availableCap(C), distance(Level, Dist), floorCount(TotalFloor), 
+		capacity(TotalCap), dir(Up), numtask(NT), Util is 0.75+0.6*(1-Dist/TotalFloor)+0.2*(C/TotalCap)-0.2*NT.
 		
-		% going to the same direction, Util = (0.8*(1-Dist/TotalFloor)+0.2*(C/TotalCap)))
+		% 2. reverse, up
 		myUtility(Level, Dir, Util)
-			:- availableCap(C), capacity(TotalCap), floorCount(TotalFloor),
-			distance(Level, Dist), dir(CurrentDir), CurrentDir == Dir,
-			Util is (0.8*(1-Dist/TotalFloor)+0.2*(C/TotalCap)).
+			:- availableCap(C), capacity(TotalCap), dir(Up), floorCount(TotalFloor),
+			distance(Level, Dist), dir(CurrentDir), CurrentDir == not(Dir), numtask(NT),
+			Util is 0.5+0.6*(1-Dist/TotalFloor)+0.2*(C/TotalCap)-0.3*NT.
+		
+		% 3. reverse, down
+		myUtility(Level, Dir, Util)
+			:- availableCap(C), capacity(TotalCap), dir(Down), floorCount(TotalFloor),
+			distance(Level, Dist), dir(CurrentDir), CurrentDir == not(Dir), numtask(NT),
+			Util is 0.5+0.6*(1-Dist/TotalFloor)+0.2*(C/TotalCap)-0.4*NT.
 		
 		myUtility(Level, Dir, Util)
 			:- availableCap(C), C == N, numtask(0), Util = 1.
 		
-		% going to reversed direction, Util = (0.4*(1-Dist/TotalFloor)+0.2*(C/TotalCap)))
-		myUtility(Level, Dir, Util)
-			:- availableCap(C), capacity(TotalCap), floorCount(TotalFloor),
-			distance(Level, Dist),
-			Util is (0.4*(1-Dist/TotalFloor)+0.2*(C/TotalCap)).
-			
+		% 4.  same direction, down
+		myUtility(Level, Dir, Util) :- availableCap(C), distance(Level, Dist), floorCount(TotalFloor), 
+		capacity(TotalCap), dir(Down), numtask(NT), Util is 0.25+0.6*(1-Dist/TotalFloor)+0.4*(C/TotalCap)-0.2*NT.
+
 		% if no rules achieved, default Util = 0.01 
 		myUtility(Level, Dir, 0.01) :- not(myUtility(Level, Dir, Util)).
 		

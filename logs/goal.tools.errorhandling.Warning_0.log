@@ -2,9 +2,9 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2016-01-04T15:10:17</date>
-  <millis>1451916617405</millis>
-  <sequence>4279</sequence>
+  <date>2016-01-05T09:46:32</date>
+  <millis>1451983592673</millis>
+  <sequence>4935</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>
@@ -12,9 +12,9 @@
   <message>environment deleted entity car0. Debugger will kill agent(s) [elevator]</message>
 </record>
 <record>
-  <date>2016-01-04T15:10:17</date>
-  <millis>1451916617413</millis>
-  <sequence>4281</sequence>
+  <date>2016-01-05T09:46:32</date>
+  <millis>1451983592676</millis>
+  <sequence>4937</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>
@@ -22,9 +22,9 @@
   <message>environment deleted entity car1. Debugger will kill agent(s) [elevator_0]</message>
 </record>
 <record>
-  <date>2016-01-04T15:10:17</date>
-  <millis>1451916617413</millis>
-  <sequence>4283</sequence>
+  <date>2016-01-05T09:46:32</date>
+  <millis>1451983592676</millis>
+  <sequence>4939</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>
@@ -32,16 +32,16 @@
   <message>environment deleted entity car2. Debugger will kill agent(s) [elevator_1]</message>
 </record>
 <record>
-  <date>2016-01-04T15:10:17</date>
-  <millis>1451916617414</millis>
-  <sequence>4285</sequence>
+  <date>2016-01-05T09:46:32</date>
+  <millis>1451983592679</millis>
+  <sequence>4941</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>
-  <thread>27</thread>
+  <thread>32</thread>
   <message>Failed to get percepts from environment.</message>
   <exception>
-    <message>eis.exceptions.PerceiveException: Agent "elevator" has no associated entities.</message>
+    <message>eis.exceptions.PerceiveException: Agent "elevator_0" has no associated entities.</message>
     <frame>
       <class>eis.EIDefaultImpl</class>
       <method>getAllPercepts</method>
@@ -74,13 +74,43 @@
   </exception>
 </record>
 <record>
-  <date>2016-01-04T15:10:17</date>
-  <millis>1451916617431</millis>
-  <sequence>4286</sequence>
+  <date>2016-01-05T09:46:32</date>
+  <millis>1451983592702</millis>
+  <sequence>4942</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>
-  <thread>27</thread>
+  <thread>32</thread>
+  <message>elevator_0 was terminated</message>
+  <exception>
+    <message>java.util.concurrent.ExecutionException: Agent was killed by debugger</message>
+    <frame>
+      <class>goal.core.agent.GOALInterpreter$1</class>
+      <method>run</method>
+      <line>159</line>
+    </frame>
+    <frame>
+      <class>java.util.concurrent.ThreadPoolExecutor</class>
+      <method>runWorker</method>
+    </frame>
+    <frame>
+      <class>java.util.concurrent.ThreadPoolExecutor$Worker</class>
+      <method>run</method>
+    </frame>
+    <frame>
+      <class>java.lang.Thread</class>
+      <method>run</method>
+    </frame>
+  </exception>
+</record>
+<record>
+  <date>2016-01-05T09:46:32</date>
+  <millis>1451983592711</millis>
+  <sequence>4943</sequence>
+  <level>WARNING</level>
+  <class>goal.tools.logging.GOALLogger</class>
+  <method>log</method>
+  <thread>36</thread>
   <message>elevator was terminated</message>
   <exception>
     <message>java.util.concurrent.ExecutionException: Agent was killed by debugger</message>
@@ -104,44 +134,14 @@
   </exception>
 </record>
 <record>
-  <date>2016-01-04T15:10:17</date>
-  <millis>1451916617684</millis>
-  <sequence>4287</sequence>
+  <date>2016-01-05T09:46:33</date>
+  <millis>1451983593109</millis>
+  <sequence>4944</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>
-  <thread>28</thread>
+  <thread>43</thread>
   <message>elevator_1 was terminated</message>
-  <exception>
-    <message>java.util.concurrent.ExecutionException: Agent was killed by debugger</message>
-    <frame>
-      <class>goal.core.agent.GOALInterpreter$1</class>
-      <method>run</method>
-      <line>159</line>
-    </frame>
-    <frame>
-      <class>java.util.concurrent.ThreadPoolExecutor</class>
-      <method>runWorker</method>
-    </frame>
-    <frame>
-      <class>java.util.concurrent.ThreadPoolExecutor$Worker</class>
-      <method>run</method>
-    </frame>
-    <frame>
-      <class>java.lang.Thread</class>
-      <method>run</method>
-    </frame>
-  </exception>
-</record>
-<record>
-  <date>2016-01-04T15:10:17</date>
-  <millis>1451916617686</millis>
-  <sequence>4288</sequence>
-  <level>WARNING</level>
-  <class>goal.tools.logging.GOALLogger</class>
-  <method>log</method>
-  <thread>39</thread>
-  <message>elevator_0 was terminated</message>
   <exception>
     <message>java.util.concurrent.ExecutionException: Agent was killed by debugger</message>
     <frame>
