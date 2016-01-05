@@ -17,34 +17,40 @@ init module {
 		
 		% utility calculation (current approach: 60% based on distance, and 20% based on available capacity, and 20% based on task occupation)
 		%elevator is full, Util=0
-		myUtility(Level, Dir, Util) :- availableCap(C), C == 0, Util = 0.
+%		myUtility(Level, Dir, Util) :- availableCap(C), C == 0, Util = 0.
 		
 		% 1. same direction, up
-		myUtility(Level, Dir, Util) :- availableCap(C), distance(Level, Dist), floorCount(TotalFloor), 
-		capacity(TotalCap), dir(Up), numtask(NT), Util is 0.75+0.6*(1-Dist/TotalFloor)+0.2*(C/TotalCap)-0.2*NT.
+%		myUtility(Level, Dir, Util) :- availableCap(C), distance(Level, Dist), floorCount(TotalFloor), 
+%		capacity(TotalCap), dir(Up), numtask(NT), Util is 0.75+0.6*(1-Dist/TotalFloor)+0.2*(C/TotalCap)-0.2*NT.
 		
 		% 2. reverse, up
-		myUtility(Level, Dir, Util)
-			:- availableCap(C), capacity(TotalCap), dir(Up), floorCount(TotalFloor),
-			distance(Level, Dist), dir(CurrentDir), CurrentDir == not(Dir), numtask(NT),
-			Util is 0.5+0.6*(1-Dist/TotalFloor)+0.2*(C/TotalCap)-0.3*NT.
+%		myUtility(Level, Dir, Util)
+%			:- availableCap(C), capacity(TotalCap), dir(Up), floorCount(TotalFloor),
+%			distance(Level, Dist), dir(CurrentDir), CurrentDir == not(Dir), numtask(NT),
+%			Util is 0.5+0.6*(1-Dist/TotalFloor)+0.3*(C/TotalCap)-0.3*NT.
 		
 		% 3. reverse, down
-		myUtility(Level, Dir, Util)
-			:- availableCap(C), capacity(TotalCap), dir(Down), floorCount(TotalFloor),
-			distance(Level, Dist), dir(CurrentDir), CurrentDir == not(Dir), numtask(NT),
-			Util is 0.5+0.6*(1-Dist/TotalFloor)+0.2*(C/TotalCap)-0.4*NT.
+%		myUtility(Level, Dir, Util)
+%			:- availableCap(C), capacity(TotalCap), dir(Down), floorCount(TotalFloor),
+%			distance(Level, Dist), dir(CurrentDir), CurrentDir == not(Dir), numtask(NT),
+%			Util is 0.5+0.6*(1-Dist/TotalFloor)+0.2*(C/TotalCap)-0.4*NT.
 		
-		myUtility(Level, Dir, Util)
-			:- availableCap(C), C == N, numtask(0), Util = 1.
+%		myUtility(Level, Dir, Util)
+%			:- availableCap(C), C == N, numtask(0), Util = 1.
 		
 		% 4.  same direction, down
-		myUtility(Level, Dir, Util) :- availableCap(C), distance(Level, Dist), floorCount(TotalFloor), 
-		capacity(TotalCap), dir(Down), numtask(NT), Util is 0.25+0.6*(1-Dist/TotalFloor)+0.4*(C/TotalCap)-0.2*NT.
+%		myUtility(Level, Dir, Util) :- availableCap(C), distance(Level, Dist), floorCount(TotalFloor), 
+%		capacity(TotalCap), dir(Down), numtask(NT), Util is 0.25+0.6*(1-Dist/TotalFloor)+0.4*(C/TotalCap)-0.2*NT.
 
 		% if no rules achieved, default Util = 0.01 
-		myUtility(Level, Dir, 0.01) :- not(myUtility(Level, Dir, Util)).
-		
+%		myUtility(Level, Dir, 0.01) :- not(myUtility(Level, Dir, Util)).
+
+myUtility(Level, Dir, Util) :- availableCap(C), C == 0, Util = 0.
+myUtility(Level, Dir, Util) :- availableCap(C), C>0, onRoute(Level,Dir), distance(Level, Dist), floorCount(TotalFloor), capacity(TotalCap), dir(Up), Util is 80+20*(1-Dist/TotalFloor).
+myUtility(Level, Dir, Util) :- availableCap(C), C>0, not(onRoute(Level,Dir)), distance(Level, Dist), floorCount(TotalFloor), capacity(TotalCap), dir(Up), Util is 20+20*(1-Dist/TotalFloor).
+%myUtility(Level, Dir, Util) :- availableCap(C), C > 0, not(inHere(Level,Dir)), Util = 1.
+
+
 		
 	}
 	beliefs{
@@ -112,6 +118,10 @@ event module {
 				
 		% The fButton(Level,Dir) percept indicates that the up or down (Dir) button on floor Level has been pressed.
 		%% whenever there is picking request (fButtonOn), inform the manager (only first elevator sends it to avoid redundance)
+		
+		forall bel(sent(manager, bid(Level, Dir, Util)), not(percept(fButtonOn(Level,Dir))))
+			do delete (sent(manager, bid(Level, Dir, Util))).
+		
 		forall bel( me(elevator), percept(fButtonOn(Level,Dir)), not(sent(manager,fButtonOn(Level,Dir))) )
 			do (manager).send( fButtonOn(Level,Dir) ).
 					
@@ -129,7 +139,8 @@ event module {
 		forall bel( received(manager, auction(Level, Dir)), not(sent(manager, bid(Level, Dir, _)))) do {
 			if bel(myUtility(Level, Dir, Util))
 				then (manager).send(bid(Level, Dir, Util))
-				+ delete(sent(manager,fButtonOn(Level,Dir))).
+				+ delete(sent(manager,fButtonOn(Level,Dir)))
+				+ delete (received(manager, auction(Level, Dir))).
 		}
 
 		%% when receiving task from the manager, adopt this task as goal
@@ -149,7 +160,8 @@ event module {
 		%after a task is completed, inform the manager
 		forall bel(task(Level,Dir)), not(goal(atFloor(Level), dir(Dir)))
 			do delete(task(Level,Dir))
-			+ (manager).send( task_complete(Level, Dir)).
+			+ (manager).send( task_complete(Level, Dir))
+			+ delete (sent(manager,task_complete(Level, Dir))).
 
 		% If there are no current goals to pursue, then adopt a goal to service an arbitrary floor for
 		% which a floor button has been pressed that is not already being serviced.
