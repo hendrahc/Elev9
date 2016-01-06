@@ -2,8 +2,8 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2016-01-06T12:38:49</date>
-  <millis>1452080329499</millis>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931665</millis>
   <sequence>0</sequence>
   <level>INFO</level>
   <class>goal.tools.logging.GOALLogger</class>
@@ -12,8 +12,8 @@
   <message>Parsing mas file D:\Data\KULIAH_S2\AI Technique\Elev9\Elev9\elev9.mas2g</message>
 </record>
 <record>
-  <date>2016-01-06T12:38:49</date>
-  <millis>1452080329595</millis>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931773</millis>
   <sequence>1</sequence>
   <level>INFO</level>
   <class>goal.tools.logging.GOALLogger</class>
@@ -22,8 +22,8 @@
   <message>Parsing of D:\Data\KULIAH_S2\AI Technique\Elev9\Elev9\elev9.mas2g completed</message>
 </record>
 <record>
-  <date>2016-01-06T12:38:49</date>
-  <millis>1452080329596</millis>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931773</millis>
   <sequence>2</sequence>
   <level>INFO</level>
   <class>goal.tools.logging.GOALLogger</class>
@@ -32,19 +32,59 @@
   <message>Parsing agent file D:\Data\KULIAH_S2\AI Technique\Elev9\Elev9\elev9agent.goal</message>
 </record>
 <record>
-  <date>2016-01-06T12:38:49</date>
-  <millis>1452080329769</millis>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931913</millis>
   <sequence>3</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>
   <thread>1</thread>
-  <message>Warning at line 73, position 2 in elev9agent.goal: Action parameter(s) Level are not used in pre- nor post-condition</message>
+  <message>Warning at line 10, position 2 in elev9agent.goal: case1/2 is defined but there is no belief query that uses it</message>
 </record>
 <record>
-  <date>2016-01-06T12:38:49</date>
-  <millis>1452080329771</millis>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931945</millis>
   <sequence>4</sequence>
+  <level>WARNING</level>
+  <class>goal.tools.logging.GOALLogger</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>Warning at line 13, position 2 in elev9agent.goal: case2/2 is defined but there is no belief query that uses it</message>
+</record>
+<record>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931945</millis>
+  <sequence>5</sequence>
+  <level>WARNING</level>
+  <class>goal.tools.logging.GOALLogger</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>Warning at line 16, position 2 in elev9agent.goal: case3/2 is defined but there is no belief query that uses it</message>
+</record>
+<record>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931959</millis>
+  <sequence>6</sequence>
+  <level>WARNING</level>
+  <class>goal.tools.logging.GOALLogger</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>Warning at line 19, position 2 in elev9agent.goal: case4/2 is defined but there is no belief query that uses it</message>
+</record>
+<record>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931959</millis>
+  <sequence>7</sequence>
+  <level>WARNING</level>
+  <class>goal.tools.logging.GOALLogger</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>Warning at line 89, position 2 in elev9agent.goal: Action parameter(s) Level are not used in pre- nor post-condition</message>
+</record>
+<record>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931959</millis>
+  <sequence>8</sequence>
   <level>INFO</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>
@@ -52,9 +92,9 @@
   <message>Parsing of D:\Data\KULIAH_S2\AI Technique\Elev9\Elev9\elev9agent.goal completed with warnings.</message>
 </record>
 <record>
-  <date>2016-01-06T12:38:49</date>
-  <millis>1452080329772</millis>
-  <sequence>5</sequence>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931959</millis>
+  <sequence>9</sequence>
   <level>INFO</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>
@@ -62,9 +102,9 @@
   <message>Parsing agent file D:\Data\KULIAH_S2\AI Technique\Elev9\Elev9\cnpmgr.goal</message>
 </record>
 <record>
-  <date>2016-01-06T12:38:49</date>
-  <millis>1452080329834</millis>
-  <sequence>6</sequence>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931992</millis>
+  <sequence>10</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>
@@ -72,9 +112,9 @@
   <message>Warning at line 24, position 1 in cnpmgr.goal: Program section of init module has no rules</message>
 </record>
 <record>
-  <date>2016-01-06T12:38:49</date>
-  <millis>1452080329834</millis>
-  <sequence>7</sequence>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931992</millis>
+  <sequence>11</sequence>
   <level>WARNING</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>
@@ -82,9 +122,9 @@
   <message>Warning at line 30, position 1 in cnpmgr.goal: Program section of main module has no rules</message>
 </record>
 <record>
-  <date>2016-01-06T12:38:49</date>
-  <millis>1452080329834</millis>
-  <sequence>8</sequence>
+  <date>2016-01-06T16:08:51</date>
+  <millis>1452092931992</millis>
+  <sequence>12</sequence>
   <level>INFO</level>
   <class>goal.tools.logging.GOALLogger</class>
   <method>log</method>

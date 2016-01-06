@@ -6,14 +6,30 @@ init module {
 		%% 
 		onRoute(Level, Dir) :- atFloor(Here), dir(Dir), Diff is Level-Here, (Diff<0 -> Dir=down; Dir=up).
 		
+		case1(Level,Dir) :- carPosition(Here), dir(up), Level>Here, Dir = up.
+		case1(Level,Dir) :- carPosition(Here), dir(down), Level<Here, Dir = down.
+		
+		case2(Level,Dir) :- carPosition(Here), dir(up), Level>Here, Dir = down.
+		case2(Level,Dir) :- carPosition(Here), dir(down), Level<Here, Dir = up.
+		
+		case3(Level,Dir) :- carPosition(Here), dir(up), Level<Here, Dir = up.
+		case3(Level,Dir) :- carPosition(Here), dir(down), Level>Here, Dir = down.
+		
+		case4(Level,Dir) :- carPosition(Here), dir(up), Level<Here, Dir = down.
+		case4(Level,Dir) :- carPosition(Here), dir(down), Level>Here, Dir = up.
+		
+		
 		% count the left capacity of this elevator (total capacity - number of people inside)
 		availableCap(CapLeft) :- capacity(C), people(N), CapLeft is C - N.
 		
 		% distance between the current elevator position and target position
 		distance(Level, Dist) :- carPosition(CurrentPos), Dist is abs(Level-CurrentPos).
 		
-		tasklist(H) :- findall(Task, task(Task, Dir), H).
-		numtask(NT) :- tasklist(H), length(H,NT).
+%		tasklist(H) :- findall(Goal, task(Goal, Dir), H).
+%		numtask(NG) :- tasklist(H), length(H,NG).
+		
+		goallist(H) :- findall(Goal, myGoal(Goal, Dir), H).
+		numgoal(NG) :- goallist(H), length(H,NG).
 		
 		% utility calculation (current approach: 60% based on distance, and 20% based on available capacity, and 20% based on task occupation)
 		%elevator is full, Util=0
@@ -46,8 +62,8 @@ init module {
 %		myUtility(Level, Dir, 0.01) :- not(myUtility(Level, Dir, Util)).
 
 myUtility(Level, Dir, Util) :- availableCap(C), C == 0, Util = 0.
-myUtility(Level, Dir, Util) :- availableCap(C), C>0, onRoute(Level,Dir), distance(Level, Dist), floorCount(TotalFloor), numtask(NT), dir(Up), Util is 80+20*(1-Dist/TotalFloor)-NT.
-myUtility(Level, Dir, Util) :- availableCap(C), C>0, not(onRoute(Level,Dir)), distance(Level, Dist), floorCount(TotalFloor), numtask(NT), dir(Up), Util is 20+20*(1-Dist/TotalFloor)-NT.
+myUtility(Level, Dir, Util) :- availableCap(C), C>0, onRoute(Level,Dir), distance(Level, Dist), floorCount(TotalFloor), numgoal(NG), Util is 80+20*(1-Dist/TotalFloor) - NG.
+myUtility(Level, Dir, Util) :- availableCap(C), C>0, not(onRoute(Level,Dir)), distance(Level, Dist), floorCount(TotalFloor), numgoal(NG), Util is 20*(1-Dist/TotalFloor) - NG.
 %myUtility(Level, Dir, Util) :- availableCap(C), C > 0, not(inHere(Level,Dir)), Util = 1.
 
 
@@ -153,7 +169,8 @@ event module {
 			+ insert( task(Level,Dir) ).
 		
 		forall bel(task(Level,Dir), percept(fButtonOn(Level,Dir)))
-			do adopt(atFloor(Level), dir(Dir)).
+			do adopt(atFloor(Level), dir(Dir))
+			+ insert(myGoal(Level,Dir)).
 		
 		% forall bel( fButtonOn(Level, Dir), onRoute(Level, Dir), myUtility(Level, Dir, Util) ) do (manager).send(bid(Level, Dir, Util)).
 				
@@ -161,9 +178,16 @@ event module {
 		% In that case, the agent will adopt a goal to service that floor. It is ASSUMED that a button for a floor is
 		% pressed that is "on route", i.e. in the direction the elevator is currently travelling.
 		%% insert Delivery request as goal
-		forall bel( percept(eButtonOn(Level)), dir(Dir) ) do adopt( atFloor(Level), dir(Dir) ).
+		forall bel( percept(eButtonOn(Level)), dir(Dir) )
+			do adopt( atFloor(Level), dir(Dir) )
+			+ insert(myGoal(Level,Dir)).
 
 		%after a task is completed, inform the manager
+		
+		forall bel(myGoal(Level,Dir), atFloor(Level), dir(Dir))
+			do delete(myGoal(Level,Dir)).
+		
+		
 		forall bel(task(Level,Dir), not(percept(fButtonOn(Level,Dir))))
 			do delete(task(Level,Dir))
 			+ (manager).send( task_complete(Level, Dir))
