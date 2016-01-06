@@ -1,13 +1,20 @@
+%% GOAL | Multi-Agent Elevator Manager %%
+%% Group 9 %%
+%% H.H. Choiri (4468457) %%
+%%  T. Smit (4242785) %%
+
+%% Manager agent %%
+
 init module {
 	knowledge{
 		
-		% calculating number of elevators (counting the number of all agents except me, the manager)
+		%% calculating number of elevators (counting the number of all agents except me, the manager)
 		elevator(Elev) :- agent(Elev), not(me(Elev)).
 		elevList(L) :- findall(Elev, elevator(Elev), L).
 		num_elev(N) :- elevList(L), length(L,N).
 		
-		% for each level and dir, choose the sender with the highest utility
-		% highest utility means there is no other agent with higher utility  
+		%% for each level and dir, choose the sender with the highest utility
+		%% highest utility means there is no other agent with higher utility  
 		highest_bid(Sender,Level,Dir,Util) :- received_bid(Sender, Level, Dir, Util), not(there_is_higher_bid(Sender,Level,Dir,Util) ).
 		there_is_higher_bid(Sender,Level,Dir,Util) :- received_bid(Sender, Level, Dir, Util), received_bid(Other, Level, Dir, OtherUtil), Sender \= Other, OtherUtil > Util.
 		
@@ -35,9 +42,9 @@ main module {
 event module {
 	program {
 		
-		% receive passenger picking request at floor Level, direction Dir (from elevator) 
-		% create request to pick for auction
-		% request(Level,Dir,N) means there are already N collected bids for request to floor Level with direction Dir
+		%% receive passenger picking request at floor Level, direction Dir (from elevator) 
+		%% create request to pick for auction
+		%% request(Level,Dir,N) means there are already N collected bids for request to floor Level with direction Dir
 		forall bel(received(Sender, fButtonOn(Level,Dir) ))
 		do{
 			if bel(not(fButtonOn(Level,Dir)))
@@ -47,12 +54,12 @@ event module {
 				then delete(received(Sender,fButtonOn(Level,Dir))). 			
 		}
 		
-		% whenever there is a picking request, send auction to all elevators
+		%% whenever there is a picking request, send auction to all elevators
 		forall bel(agent(A), not(me(A)), fButtonOn(Level,Dir), not(sent(A, auction(Level, Dir))), not(received_bid(A, Level, Dir, Util)))
 			do (A).send( auction(Level, Dir)).
 
-		% collecting bids from elevators for a request
-		% whenever there is new bid, update the request
+		%% collecting bids from elevators for a request
+		%% whenever there is new bid, update the request
 		if bel(received(Sender,bid(Level, Dir, Util)), request(Level, Dir, LastN), num_elev(N), CurrentN is LastN+1, LastN < N)
 			then insert( received_bid(Sender, Level, Dir, Util) )
 			+ delete(request(Level, Dir, LastN))
@@ -61,17 +68,16 @@ event module {
 			+ delete(received(Sender,bid(Level, Dir, Util))).
 			
 		
-		% when all bids for request have been collected (number of bids = number of elevators),
-		%  send the task to first elevator with the highest utility
+		%% when all bids for request have been collected (number of bids = number of elevators),
+		%%  send the task to first elevator with the highest utility
 		forall bel(request(Level, Dir, N), num_elev(N))
 		do {
 			if bel(highest_bid(Sender, Level, Dir, Util), not(task_assign(Level, Dir, _)))
 			then (Sender).send( task(Level,Dir) ) 
 				+ insert( task_assign(Level, Dir, Sender) ).
-			
 		}
 		
-		% whenever an elevator has completed the task, delete the task assignment
+		%% whenever an elevator has completed the task, delete the information related to that task
 		forall bel(received(Sender, task_complete(Level, Dir)), task_assign(Level, Dir, Sender), request(Level, Dir, N))
 		do delete(task_assign(Level, Dir, Sender))
 			+ delete(sent(Sender, task(Level,Dir)))
@@ -79,9 +85,8 @@ event module {
 			+ delete(fButtonOn(Level,Dir))
 			+ delete(received(Sender, task_complete(Level, Dir))).
 
-
+		%% cleanup the mailbox when a task is finished
 		forall bel(received(S,bid(Level, Dir, U)), not(request(Level, Dir, N))) do delete(sent(S, auction(Level, Dir)))+delete(received(S,bid(Level, Dir, U))).
 		forall bel(received_bid(S, Level, Dir, U), not(request(Level, Dir, N))) do delete(received_bid(S, Level, Dir, U)).
-		 
 	}
 }
