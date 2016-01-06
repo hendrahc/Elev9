@@ -46,8 +46,8 @@ init module {
 %		myUtility(Level, Dir, 0.01) :- not(myUtility(Level, Dir, Util)).
 
 myUtility(Level, Dir, Util) :- availableCap(C), C == 0, Util = 0.
-myUtility(Level, Dir, Util) :- availableCap(C), C>0, onRoute(Level,Dir), distance(Level, Dist), floorCount(TotalFloor), capacity(TotalCap), dir(Up), Util is 80+20*(1-Dist/TotalFloor).
-myUtility(Level, Dir, Util) :- availableCap(C), C>0, not(onRoute(Level,Dir)), distance(Level, Dist), floorCount(TotalFloor), capacity(TotalCap), dir(Up), Util is 20+20*(1-Dist/TotalFloor).
+myUtility(Level, Dir, Util) :- availableCap(C), C>0, onRoute(Level,Dir), distance(Level, Dist), floorCount(TotalFloor), numtask(NT), dir(Up), Util is 80+20*(1-Dist/TotalFloor)-NT.
+myUtility(Level, Dir, Util) :- availableCap(C), C>0, not(onRoute(Level,Dir)), distance(Level, Dist), floorCount(TotalFloor), numtask(NT), dir(Up), Util is 20+20*(1-Dist/TotalFloor)-NT.
 %myUtility(Level, Dir, Util) :- availableCap(C), C > 0, not(inHere(Level,Dir)), Util = 1.
 
 
@@ -122,8 +122,9 @@ event module {
 		forall bel(sent(manager, bid(Level, Dir, Util)), not(percept(fButtonOn(Level,Dir))))
 			do delete (sent(manager, bid(Level, Dir, Util))).
 		
-		forall bel( me(elevator), percept(fButtonOn(Level,Dir)), not(sent(manager,fButtonOn(Level,Dir))) )
-			do (manager).send( fButtonOn(Level,Dir) ).
+		forall bel( me(elevator), percept(fButtonOn(Level,Dir)))
+			do (manager).send( fButtonOn(Level,Dir) )
+			+ delete(sent(manager,fButtonOn(Level,Dir))).
 					
 		% The doorState percept is received only if the door state has changed.
 		% So we do not need to check whether the New value is different from the Old value to avoid unnecessary updates.
@@ -135,19 +136,24 @@ event module {
 		% The elevator agent changes its plans only while it is docked, i.e., at a floor
 		% and not moving.
 		
+%		forall bel(received(manager, auction(Level, Dir)), not(percept(fButtonOn(Level, Dir))))
+%			do delete (received(manager, auction(Level, Dir))).
+		
 		%% send the bid whenever receiving auction from manager
-		forall bel( received(manager, auction(Level, Dir)), not(sent(manager, bid(Level, Dir, _)))) do {
-			if bel(myUtility(Level, Dir, Util))
+		forall bel( received(manager, auction(Level, Dir))) do {
+			if bel(myUtility(Level, Dir, Util), not(sent(manager, bid(Level, Dir, Util))))
 				then (manager).send(bid(Level, Dir, Util))
-				+ delete(sent(manager,fButtonOn(Level,Dir)))
 				+ delete (received(manager, auction(Level, Dir))).
 		}
 
 		%% when receiving task from the manager, adopt this task as goal
 		forall bel(received(Sender,task(Level, Dir)))
 			do delete(received(Sender,task(Level, Dir)))
-			+ adopt(atFloor(Level), dir(Dir))
+%			+ adopt(atFloor(Level), dir(Dir))
 			+ insert( task(Level,Dir) ).
+		
+		forall bel(task(Level,Dir), percept(fButtonOn(Level,Dir)))
+			do adopt(atFloor(Level), dir(Dir)).
 		
 		% forall bel( fButtonOn(Level, Dir), onRoute(Level, Dir), myUtility(Level, Dir, Util) ) do (manager).send(bid(Level, Dir, Util)).
 				
@@ -158,7 +164,7 @@ event module {
 		forall bel( percept(eButtonOn(Level)), dir(Dir) ) do adopt( atFloor(Level), dir(Dir) ).
 
 		%after a task is completed, inform the manager
-		forall bel(task(Level,Dir)), not(goal(atFloor(Level), dir(Dir)))
+		forall bel(task(Level,Dir), not(percept(fButtonOn(Level,Dir))))
 			do delete(task(Level,Dir))
 			+ (manager).send( task_complete(Level, Dir))
 			+ delete (sent(manager,task_complete(Level, Dir))).
